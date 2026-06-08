@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Pengeluaran — BAI Kontruksi</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0EDE8;
+    --surface: #FAFAF7;
+    --surface2: #EFEDE8;
+    --border: #D8D4CC;
+    --border-focus: #2C5F2E;
+    --text: #1A1A18;
+    --text-muted: #6B6860;
+    --green: #2C5F2E;
+    --green-light: #4A8C4C;
+    --green-bg: #EBF4EB;
+    --blue: #1F3864;
+    --blue-light: #2E75B6;
+    --blue-bg: #EBF0F7;
+    --yellow: #F5A623;
+    --yellow-bg: #FEF7EC;
+    --red: #C0392B;
+    --red-bg: #FDECEA;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--green);
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .topbar-logo {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .topbar-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+  .topbar-sub { font-size: 11px; opacity: 0.75; margin-top: 1px; }
+
+  /* ── Tab selector ── */
+  .tab-wrap {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    gap: 0;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px 8px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .tab-btn.active-kantor {
+    color: var(--green);
+    border-bottom-color: var(--green);
+  }
+  .tab-btn.active-proyek {
+    color: var(--blue-light);
+    border-bottom-color: var(--blue-light);
+  }
+  .tab-icon { font-size: 16px; }
+
+  /* ── Main content ── */
+  .main { padding: 20px 16px 40px; max-width: 600px; margin: 0 auto; }
+
+  /* ── Section card ── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.3s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-label.green { color: var(--green); }
+  .card-label.blue { color: var(--blue-light); }
+
+  /* ── Form fields ── */
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  label .req { color: var(--red); margin-left: 2px; }
+  label .hint {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 11px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  input[type="url"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(44,95,46,0.1);
+    background: var(--surface);
+  }
+  .form-proyek input:focus, .form-proyek select:focus, .form-proyek textarea:focus {
+    border-color: var(--blue-light);
+    box-shadow: 0 0 0 3px rgba(46,117,182,0.1);
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6860' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  /* Number formatting */
+  .rp-wrap { position: relative; }
+  .rp-wrap input { padding-left: 42px; }
+  .rp-prefix {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* ── Upload area ── */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg);
+  }
+  .upload-area:hover { border-color: var(--green); background: var(--green-bg); }
+  .form-proyek .upload-area:hover { border-color: var(--blue-light); background: var(--blue-bg); }
+  .upload-icon { font-size: 28px; margin-bottom: 8px; }
+  .upload-text { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+  .upload-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .upload-area input { display: none; }
+
+  /* Or paste link */
+  .or-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 10px 0;
+    font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;
+  }
+  .or-divider::before, .or-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ── Submit button ── */
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-kantor {
+    background: var(--green);
+    color: white;
+    box-shadow: 0 4px 16px rgba(44,95,46,0.3);
+  }
+  .btn-kantor:hover { background: var(--green-light); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(44,95,46,0.35); }
+  .btn-proyek {
+    background: var(--blue);
+    color: white;
+    box-shadow: 0 4px 16px rgba(31,56,100,0.3);
+  }
+  .btn-proyek:hover { background: var(--blue-light); transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ── Status messages ── */
+  .alert {
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    animation: fadeUp 0.3s ease;
+  }
+  .alert.show { display: flex; }
+  .alert-success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(44,95,46,0.2); }
+  .alert-error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(192,57,43,0.2); }
+  .alert-loading { background: var(--yellow-bg); color: #7A4F00; border: 1px solid rgba(245,166,35,0.3); }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── Form panels ── */
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
+
+  /* ── Info strip ── */
+  .info-strip {
+    background: var(--yellow-bg);
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #7A4F00;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+
+  /* ── Spinner ── */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (min-width: 600px) {
+    .main { padding: 28px 20px 60px; }
+    .topbar { padding: 16px 32px; }
+    .tab-wrap { padding: 0 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">🏗️</div>
+  <div>
+    <div class="topbar-title">BAI Kontruksi</div>
+    <div class="topbar-sub">Sistem Kas Operasional</div>
+  </div>
+</div>
+
+<div class="tab-wrap">
+  <button class="tab-btn active-kantor" id="tab-kantor" onclick="switchTab('kantor')">
+    <span class="tab-icon">🏢</span> Pengeluaran Kantor
+  </button>
+  <button class="tab-btn" id="tab-proyek" onclick="switchTab('proyek')">
+    <span class="tab-icon">🔨</span> Pengeluaran Proyek
+  </button>
+</div>
+
+<div class="main">
+
+  <!-- ══ FORM KANTOR ══ -->
+  <div class="form-panel active" id="panel-kantor">
+
+    <div class="info-strip">
+      <span>⚠️</span>
+      <span>Isi form ini setelah kamu mengeluarkan uang pribadi untuk keperluan <strong>kantor</strong>. Upload foto nota ke Google Drive terlebih dahulu.</span>
+    </div>
+
+    <div id="alert-kantor" class="alert">
+      <span class="alert-icon" id="alert-kantor-icon"></span>
+      <span id="alert-kantor-msg"></span>
+    </div>
+
+    <form id="form-kantor" novalidate>
+
+      <div class="card">
+        <div class="card-label green">📅 Informasi Dasar</div>
+
+        <div class="field">
+          <label>Tanggal Pengeluaran <span class="req">*</span></label>
+          <input type="date" name="tanggal" id="k-tanggal" required>
+        </div>
+
+        <div class="field">
+          <label>Nama Lengkap <span class="req">*</span></label>
+          <input type="text" name="nama" placeholder="Contoh: Budi Santoso" required>
+        </div>
+
+        <div class="field">
+          <label>Jabatan <span class="req">*</span></label>
+          <select name="jabatan" required>
+            <option value="">— Pilih jabatan —</option>
+            <option>Staff Kantor</option>
+            <option>Admin</option>
+            <option>Keuangan</option>
+            <option>Kepala Proyek</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label green">💰 Detail Pengeluaran</div>
+
+        <div class="field">
+          <label>Kategori Pengeluaran <span class="req">*</span></label>
+          <select name="kategori" required>
+            <option value="">— Pilih kategori —</option>
+            <option>ATK & Perlengkapan</option>
+            <option>Konsumsi</option>
+            <option>Transportasi</option>
+            <option>Utilitas (Listrik, Air, dll)</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Deskripsi Pengeluaran <span class="req">*</span>
+            <span class="hint">Contoh: Beli tinta printer Canon, kertas A4 2 rim</span>
+          </label>
+          <textarea name="deskripsi" placeholder="Jelaskan pengeluaran secara singkat..." required></textarea>
+        </div>
+
+        <div class="field">
+          <label>Jumlah (Rp) <span class="req">*</span>
+            <span class="hint">Isi angka saja, tanpa titik atau koma</span>
+          </label>
+          <div class="rp-wrap">
+            <span class="rp-prefix">Rp</span>
+            <input type="number" name="jumlah" placeholder="50000" min="0" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label green">📎 Bukti Nota</div>
+
+        <div class="field">
+          <label>Link Foto Nota <span class="req">*</span>
+            <span class="hint">Upload foto nota ke Google Drive, lalu paste link-nya di bawah</span>
+          </label>
+          <div class="upload-area" onclick="document.getElementById('k-file').click()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Tap untuk ambil/pilih foto nota</div>
+            <div class="upload-sub">JPG, PNG, PDF • Maks 10MB</div>
+            <input type="file" id="k-file" accept="image/*,application/pdf" onchange="handleFileSelect(this, 'k-link')">
+          </div>
+          <div id="k-file-name" style="display:none; font-size:12px; color:var(--green); margin-top:6px; font-weight:600;"></div>
+          <div class="or-divider">atau paste link Google Drive</div>
+          <input type="url" name="link_nota" id="k-link" placeholder="https://drive.google.com/...">
+        </div>
+
+        <div class="field">
+          <label>Keterangan Tambahan</label>
+          <textarea name="keterangan" placeholder="Opsional — tulis jika ada informasi tambahan..." style="min-height:60px;"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit btn-kantor" id="btn-kantor">
+        <div class="spinner" id="spinner-kantor"></div>
+        <span id="btn-kantor-text">Kirim Pengeluaran Kantor →</span>
+      </button>
+
+    </form>
+  </div>
+
+  <!-- ══ FORM PROYEK ══ -->
+  <div class="form-panel" id="panel-proyek">
+
+    <div class="info-strip">
+      <span>⚠️</span>
+      <span>Isi form ini setelah kamu mengeluarkan uang pribadi untuk keperluan <strong>proyek</strong>. Upload foto nota ke Google Drive terlebih dahulu.</span>
+    </div>
+
+    <div id="alert-proyek" class="alert">
+      <span class="alert-icon" id="alert-proyek-icon"></span>
+      <span id="alert-proyek-msg"></span>
+    </div>
+
+    <form id="form-proyek" novalidate class="form-proyek">
+
+      <div class="card">
+        <div class="card-label blue">📅 Informasi Dasar</div>
+
+        <div class="field">
+          <label>Tanggal Pengeluaran <span class="req">*</span></label>
+          <input type="date" name="tanggal" id="p-tanggal" required>
+        </div>
+
+        <div class="field">
+          <label>Nama Lengkap <span class="req">*</span></label>
+          <input type="text" name="nama" placeholder="Contoh: Slamet Riyadi" required>
+        </div>
+
+        <div class="field">
+          <label>Jabatan <span class="req">*</span></label>
+          <select name="jabatan" required>
+            <option value="">— Pilih jabatan —</option>
+            <option>Mandor</option>
+            <option>Tukang</option>
+            <option>Kepala Proyek</option>
+            <option>Staff Lapangan</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label blue">🔨 Detail Proyek</div>
+
+        <div class="field">
+          <label>Nama Proyek <span class="req">*</span>
+            <span class="hint">Isi sesuai nama resmi proyek yang sedang berjalan</span>
+          </label>
+          <input type="text" name="nama_proyek" placeholder="Contoh: Proyek Rumah Bu Indah" required>
+        </div>
+
+        <div class="field">
+          <label>Jenis Pengeluaran <span class="req">*</span></label>
+          <select name="jenis" required>
+            <option value="">— Pilih jenis —</option>
+            <option>Material / Bahan Bangunan</option>
+            <option>Transportasi</option>
+            <option>Konsumsi Tim</option>
+            <option>Sewa Alat</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Deskripsi Pengeluaran <span class="req">*</span>
+            <span class="hint">Contoh: Beli semen 10 sak untuk pondasi blok B</span>
+          </label>
+          <textarea name="deskripsi" placeholder="Jelaskan pengeluaran secara singkat..." required></textarea>
+        </div>
+
+        <div class="field">
+          <label>Jumlah (Rp) <span class="req">*</span>
+            <span class="hint">Isi angka saja, tanpa titik atau koma</span>
+          </label>
+          <div class="rp-wrap">
+            <span class="rp-prefix">Rp</span>
+            <input type="number" name="jumlah" placeholder="250000" min="0" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label blue">📎 Bukti Nota</div>
+
+        <div class="field">
+          <label>Link Foto Nota <span class="req">*</span>
+            <span class="hint">Upload foto nota ke Google Drive, lalu paste link-nya di bawah</span>
+          </label>
+          <div class="upload-area" onclick="document.getElementById('p-file').click()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Tap untuk ambil/pilih foto nota</div>
+            <div class="upload-sub">JPG, PNG, PDF • Maks 10MB</div>
+            <input type="file" id="p-file" accept="image/*,application/pdf" onchange="handleFileSelect(this, 'p-link')">
+          </div>
+          <div id="p-file-name" style="display:none; font-size:12px; color:var(--blue-light); margin-top:6px; font-weight:600;"></div>
+          <div class="or-divider">atau paste link Google Drive</div>
+          <input type="url" name="link_nota" id="p-link" placeholder="https://drive.google.com/...">
+        </div>
+
+        <div class="field">
+          <label>Keterangan Tambahan</label>
+          <textarea name="keterangan" placeholder="Opsional — tulis jika ada informasi tambahan..." style="min-height:60px;"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit btn-proyek" id="btn-proyek">
+        <div class="spinner" id="spinner-proyek"></div>
+        <span id="btn-proyek-text">Kirim Pengeluaran Proyek →</span>
+      </button>
+
+    </form>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── Config — ISI INI SETELAH DEPLOY APPS SCRIPT ──────────────
+const CONFIG = {
+  // Ganti dengan URL dari deployment Google Apps Script kamu
+  APPS_SCRIPT_KANTOR: "https://script.google.com/macros/s/AKfycbyznU3JZ3f7l2FXEgUuzfeogONYEsiCyzSH8wx_-B1zKPRYpbkWXUCNG4wMJ6PhUorq/exec",
+  APPS_SCRIPT_PROYEK: "https://script.google.com/macros/s/AKfycbyznU3JZ3f7l2FXEgUuzfeogONYEsiCyzSH8wx_-B1zKPRYpbkWXUCNG4wMJ6PhUorq/exec",
+};
+
+// ── Tab switching ─────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('panel-kantor').classList.toggle('active', tab === 'kantor');
+  document.getElementById('panel-proyek').classList.toggle('active', tab === 'proyek');
+  document.getElementById('tab-kantor').className = 'tab-btn' + (tab === 'kantor' ? ' active-kantor' : '');
+  document.getElementById('tab-proyek').className = 'tab-btn' + (tab === 'proyek' ? ' active-proyek' : '');
+}
+
+// ── Set today's date as default ───────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('k-tanggal').value = today;
+  document.getElementById('p-tanggal').value = today;
+});
+
+// ── File select handler ───────────────────────────────────────
+function handleFileSelect(input, linkFieldId) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const prefix = linkFieldId.startsWith('k') ? 'k' : 'p';
+    const nameEl = document.getElementById(prefix + '-file-name');
+    nameEl.style.display = 'block';
+    nameEl.textContent = '✓ ' + file.name + ' — Upload ke Google Drive lalu paste linknya di bawah';
+  }
+}
+
+// ── Alert helper ──────────────────────────────────────────────
+function showAlert(type, kind, msg) {
+  // kind: 'kantor' | 'proyek'
+  const el = document.getElementById('alert-' + kind);
+  const iconEl = document.getElementById('alert-' + kind + '-icon');
+  const msgEl = document.getElementById('alert-' + kind + '-msg');
+  el.className = 'alert show alert-' + type;
+  iconEl.textContent = type === 'success' ? '✅' : type === 'error' ? '❌' : '⏳';
+  msgEl.textContent = msg;
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function hideAlert(kind) {
+  document.getElementById('alert-' + kind).classList.remove('show');
+}
+
+// ── Form validation ───────────────────────────────────────────
+function validateForm(form) {
+  const required = form.querySelectorAll('[required]');
+  for (const field of required) {
+    if (!field.value.trim()) {
+      field.focus();
+      field.style.borderColor = 'var(--red)';
+      setTimeout(() => field.style.borderColor = '', 2000);
+      return false;
+    }
+  }
+  return true;
+}
+
+// ── Format number display ─────────────────────────────────────
+function formatRp(val) {
+  return new Intl.NumberFormat('id-ID').format(val);
+}
+
+// ── Submit handler ────────────────────────────────────────────
+async function submitForm(formId, kind, scriptUrl) {
+  const form = document.getElementById(formId);
+  hideAlert(kind);
+
+  if (!validateForm(form)) {
+    showAlert('error', kind, 'Harap isi semua kolom yang wajib diisi (ditandai *)');
+    return;
+  }
+
+  const btn = document.getElementById('btn-' + kind);
+  const btnText = document.getElementById('btn-' + kind + '-text');
+  const spinner = document.getElementById('spinner-' + kind);
+
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  btnText.textContent = 'Mengirim...';
+  showAlert('loading', kind, 'Sedang mengirim data ke sistem...');
+
+  const data = Object.fromEntries(new FormData(form));
+  data.submitted_at = new Date().toISOString();
+  data.form_type = kind;
+
+  try {
+    // Using no-cors since Apps Script requires it from external origins
+    await fetch(scriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    // no-cors returns opaque response — assume success if no error thrown
+    showAlert('success', kind,
+      `✅ Data berhasil dikirim! Pengeluaran Rp ${formatRp(data.jumlah)} sudah tercatat. Bagian keuangan akan memproses dalam 1–2 hari kerja.`
+    );
+    form.reset();
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById(kind === 'kantor' ? 'k-tanggal' : 'p-tanggal').value = today;
+    ['k-file-name','p-file-name'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+  } catch (err) {
+    showAlert('error', kind, 'Gagal mengirim. Cek koneksi internet kamu lalu coba lagi.');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    btnText.textContent = kind === 'kantor' ? 'Kirim Pengeluaran Kantor →' : 'Kirim Pengeluaran Proyek →';
+  }
+}
+
+// ── Form submit events ────────────────────────────────────────
+document.getElementById('form-kantor').addEventListener('submit', e => {
+  e.preventDefault();
+  submitForm('form-kantor', 'kantor', CONFIG.APPS_SCRIPT_KANTOR);
+});
+document.getElementById('form-proyek').addEventListener('submit', e => {
+  e.preventDefault();
+  submitForm('form-proyek', 'proyek', CONFIG.APPS_SCRIPT_PROYEK);
+});
+</script>
+
+</body>
+</html>
